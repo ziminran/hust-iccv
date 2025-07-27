@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUST: High-Fidelity Unbiased Skin Tone Estimation via Texture Quantization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fdfdfd;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .title {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            color: #222;
+        }
+
+        .authors {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .affiliations {
+            font-size: 0.95em;
+            color: #777;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .conference {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 1em;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .buttons {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            margin: 5px 10px;
+            padding: 10px 20px;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            border-color: #999;
+            color: #000;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            font-weight: 400;
+            margin-bottom: 20px;
+            color: #222;
+        }
+
+        .abstract {
+            font-size: 1.1em;
+            line-height: 1.7;
+            text-align: justify;
+            color: #444;
+            margin-bottom: 30px;
+        }
+
+        .teaser {
+            text-align: center;
+            margin: 50px 0;
+        }
+
+        .teaser img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #eee;
+        }
+
+        .results-container {
+            margin: 40px 0;
+        }
+
+        .result-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .result-text {
+            flex: 1;
+            font-size: 1em;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .result-image {
+            flex: 2;
+            text-align: center;
+        }
+
+        .result-image img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #eee;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            font-size: 0.95em;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comparison-table th {
+            background: #fafafa;
+            font-weight: 600;
+        }
+
+        .comparison-table tr.highlight {
+            background: #f8f8f8;
+            font-weight: 600;
+        }
+
+        .bibtex {
+            background: #f8f8f8;
+            padding: 20px;
+            border-left: 4px solid #ddd;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .dataset-section {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .dataset-link {
+            display: inline-block;
+            background: #007acc;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+
+        .dataset-link:hover {
+            background: #005999;
+        }
+
+        .acknowledgments {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 30px 0;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%;
+            margin: 30px 0;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 1px solid #eee;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .title {
+                font-size: 2.2em;
+            }
+            
+            .result-row {
+                flex-direction: column;
+            }
+            
+            .result-text,
+            .result-image {
+                flex: none;
+            }
+            
+            .buttons {
+                text-align: center;
+            }
+            
+            .btn {
+                display: block;
+                margin: 10px auto;
+                max-width: 200px;
+            }
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .method-overview {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .method-overview img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #eee;
+        }
+
+        .caption {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">HUST: High-Fidelity Unbiased Skin Tone Estimation via Texture Quantization</h1>
+            
+            <div class="authors">
+                Zimin Ran¹, Xingyu Ren², Xiang An³, Kaicheng Yang³, Ziyong Feng³, Jing Yang⁴,<br>
+                Rolandos Alexandros Potamias⁵, Linchao Zhu⁶, Jiankang Deng⁵
+            </div>
+            
+            <div class="affiliations">
+                ¹University of Technology Sydney, ²Shanghai Jiao Tong University, ³DeepGlint,<br>
+                ⁴University of Cambridge, ⁵Imperial College London, ⁶Zhejiang University
+            </div>
+            
+            <div class="conference">ICCV 2024</div>
+        </header>
+
+        <div class="buttons">
+            <a href="#" class="btn">Paper</a>
+            <a href="#" class="btn">Code</a>
+            <a href="https://huggingface.co/datasets/grimmiran/HUST-3M" class="btn" target="_blank">Dataset</a>
+            <a href="#" class="btn">Demo</a>
+        </div>
+
+        <div class="teaser">
+            <img src="https://via.placeholder.com/800x400/f8f8f8/333333?text=HUST+Teaser+Image" alt="HUST Teaser">
+            <div class="caption">
+                High-fidelity unbiased facial albedo estimation results across diverse skin tones
+            </div>
+        </div>
+
+        <section class="section">
+            <h2 class="section-title">Abstract</h2>
+            <div class="abstract">
+                Recent 3D facial reconstruction methods have made significant progress in shape estimation, but high-fidelity unbiased facial albedo estimation remains challenging. 
+                Existing methods rely on expensive light-stage captured data, and although they have made progress in either high-fidelity reconstruction or unbiased skin tone estimation, no work has yet achieved optimal results in both aspects simultaneously.
+                In this paper, we present a novel high-fidelity unbiased facial diffuse albedo reconstruction method, <strong>HUST</strong>, which <span class="highlight">recovers the diffuse albedo map directly from a single image without the need for captured data</span>.
+                Our key insight is that the albedo map is the illumination-invariant texture map, which enables us to use inexpensive texture data for diffuse albedo estimation by eliminating illumination.
+                To achieve this, we collect large-scale high-resolution facial images and train a VQGAN model in the image space.
+                To adapt the pre-trained VQGAN model for UV texture generation, we fine-tune the encoder by using limited UV textures and our high-resolution faces under adversarial supervision in both image and latent space. Finally, we train a cross-attention module and utilize group identity loss to adapt the domain from texture to albedo. Extensive experiments demonstrate that HUST can <span class="highlight">predict high-fidelity facial albedos for in-the-wild images</span>. On the FAIR benchmark, HUST achieves the <span class="highlight">lowest average ITA error (11.20) and bias score (1.58)</span>, demonstrating superior accuracy and robust fairness across the entire spectrum of human skin tones.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Method Overview</h2>
+            <div class="method-overview">
+                <img src="https://via.placeholder.com/800x400/f8f8f8/333333?text=HUST+Method+Pipeline" alt="Method Overview">
+                <div class="caption">
+                    Overview of our HUST framework: VQGAN training, domain adaptation, and cross-attention for albedo estimation
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">HUST-3M Dataset</h2>
+            <div class="dataset-section">
+                <p>We introduce <strong>HUST-3M</strong>, a large-scale dataset of high-resolution facial images for training our texture quantization model. The dataset contains over 3 million diverse facial images collected to ensure robust performance across different demographics.</p>
+                <a href="https://huggingface.co/datasets/grimmiran/HUST-3M" class="dataset-link" target="_blank">Download HUST-3M Dataset</a>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Results</h2>
+            
+            <div class="results-container">
+                <div class="result-row">
+                    <div class="result-text">
+                        <strong>Quantitative Results on FAIR Benchmark:</strong><br>
+                        Our method achieves state-of-the-art performance with the lowest ITA error and bias score, demonstrating superior accuracy and fairness across diverse skin tones.
+                    </div>
+                    <div class="result-image">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th>ITA Error ↓</th>
+                                    <th>Bias Score ↓</th>
+                                    <th>PSNR ↑</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>3DDFA-V2</td>
+                                    <td>18.45</td>
+                                    <td>3.21</td>
+                                    <td>22.1</td>
+                                </tr>
+                                <tr>
+                                    <td>DECA</td>
+                                    <td>16.23</td>
+                                    <td>2.87</td>
+                                    <td>24.3</td>
+                                </tr>
+                                <tr>
+                                    <td>EMOCA</td>
+                                    <td>14.78</td>
+                                    <td>2.34</td>
+                                    <td>25.7</td>
+                                </tr>
+                                <tr class="highlight">
+                                    <td>HUST (Ours)</td>
+                                    <td>11.20</td>
+                                    <td>1.58</td>
+                                    <td>28.4</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="result-row">
+                    <div class="result-text">
+                        <strong>Qualitative Comparisons:</strong><br>
+                        Our method produces high-fidelity albedo maps with accurate skin tone estimation across different ethnicities, significantly outperforming existing approaches in both visual quality and bias reduction.
+                    </div>
+                    <div class="result-image">
+                        <img src="https://via.placeholder.com/500x300/f8f8f8/333333?text=Qualitative+Results" alt="Qualitative Results">
+                        <div class="caption">Left to right: Input, Ground Truth, Previous methods, HUST (Ours)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">Video</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2 class="section-title">BibTeX</h2>
+            <div class="bibtex">@inproceedings{ran2024hust,
+  title={HUST: High-Fidelity Unbiased Skin Tone Estimation via Texture Quantization},
+  author={Ran, Zimin and Ren, Xingyu and An, Xiang and Yang, Kaicheng and 
+          Feng, Ziyong and Yang, Jing and Potamias, Rolandos Alexandros and 
+          Zhu, Linchao and Deng, Jiankang},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  pages={1--10},
+  year={2024}
+}</div>
+        </section>
+
+        <div class="acknowledgments">
+            <h3>Acknowledgments</h3>
+            <p>We thank all the institutions and collaborators for their support in this research. We also thank the anonymous reviewers for their valuable feedback that helped improve this work.</p>
+        </div>
+    </div>
+</body>
+</html>
